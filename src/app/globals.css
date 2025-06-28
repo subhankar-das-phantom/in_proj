@@ -1,9 +1,22 @@
 @reference "../styles/tailwind.css";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 250, 250, 250;
-  --background-end-rgb: 255, 255, 255;
+  --color-brand-primary: 99 102 241; /* indigo-500 */
+  --color-brand-secondary: 139 92 246; /* violet-500 */
+  --color-brand-foreground: 255 255 255;
+
+  --color-surface: 248 250 252; /* slate-50 */
+  --color-surface-dark: 17 24 39; /* slate-900 */
+
+  --foreground-rgb: 31 41 55; /* slate-800 */
+  --background-start-rgb: 255 255 255;
+  --background-end-rgb: 255 255 255;
+}
+
+.dark {
+  --foreground-rgb: 243 244 246; /* slate-100 */
+  --background-start-rgb: 17 24 39;
+  --background-end-rgb: 17 24 39;
 }
 
 body {

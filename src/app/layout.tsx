@@ -3,6 +3,7 @@ import "./globals.css";
 import "../styles/tailwind.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
+import Container from "@/components/Container";
 
 export const metadata: Metadata = {
   title: "Modern Blog CMS",
@@ -20,9 +21,9 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main className="pt-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <Container className="py-8 px-4 sm:px-6 lg:px-8">
               {children}
-            </div>
+            </Container>
           </main>
         </Providers>
       </body>

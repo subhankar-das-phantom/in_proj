@@ -7,7 +7,7 @@ export default function PostCard({ post }: { post: IPost }) {
       <Link href={`/${post.slug}`} className="block">
         <div className="relative aspect-[16/9] bg-gradient-to-br from-purple-100 to-blue-50">
           {/* Placeholder for future featured image */}
-          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300">
+          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300" aria-label={`${post.title} illustration`}>
             📝
           </div>
         </div>
