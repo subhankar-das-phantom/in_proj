@@ -6,7 +6,7 @@ async function getPosts() {
   await connectToDatabase();
   const posts = (await Post.find()
     .sort({ createdAt: -1 })
-    .lean()) as IPost[];
+    .lean()) as unknown as IPost[];
   return posts;
 }
 
