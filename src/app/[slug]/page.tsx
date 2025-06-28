@@ -38,13 +38,14 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
-  const safeHtml = DOMPurify.sanitize(post.content);
+  const safeHtml = DOMPurify.sanitize(post.content)
+    .replace(/^(<br\s*\/?>\s*)+/i, '');
 
   return (
     <main className="max-w-3xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
       <article
-        className="prose max-w-none"
+        className="prose prose-lg md:prose-xl prose-slate max-w-none prose-headings:font-bold prose-a:text-blue-600"
         dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
     </main>
