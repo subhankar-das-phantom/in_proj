@@ -10,6 +10,14 @@ async function getPosts() {
   return posts;
 }
 
+function getPreview(html: string) {
+  return html
+    .replace(/<[^>]+>/g, ' ') // remove tags
+    .replace(/&nbsp;/g, ' ')   // decode nbsp
+    .replace(/\s+/g, ' ')     // collapse whitespace
+    .trim();
+}
+
 export default async function HomePage() {
   const posts = await getPosts();
 
@@ -38,12 +46,9 @@ export default async function HomePage() {
             <p className="text-gray-600 mb-4">
               Published on {new Date(post.createdAt).toLocaleDateString()}
             </p>
-            <div
-              className="prose max-w-none text-gray-500 line-clamp-3"
-              dangerouslySetInnerHTML={{
-                __html: post.content.replace(/<[^>]+>/g, ''),
-              }}
-            />
+            <p className="text-gray-500 line-clamp-3">
+              {getPreview(post.content)}
+            </p>
             <Link
               href={`/${post.slug}`}
               className="text-blue-600 hover:underline mt-4 inline-block"
