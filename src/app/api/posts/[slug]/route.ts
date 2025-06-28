@@ -35,12 +35,20 @@ export async function PUT(req: NextRequest, { params }: Params) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, content } = await req.json();
+    const { title, content, slug } = await req.json();
 
     await connectToDatabase();
 
     const updateObj: any = { content: sanitize(content) };
     if (title) updateObj.title = title;
+    if (slug) {
+      // ensure slug unique
+      const exists = await Post.findOne({ slug });
+      if (exists && exists.slug !== params.slug) {
+        return NextResponse.json({ success: false, message: 'Slug already in use' }, { status: 400 });
+      }
+      updateObj.slug = slug;
+    }
 
     const post = await Post.findOneAndUpdate({ slug: params.slug }, updateObj, {
       new: true,

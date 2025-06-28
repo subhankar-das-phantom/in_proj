@@ -18,6 +18,7 @@ export default function EditPostPage() {
   const [slug, setSlug] = useState(slugParam);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [slugEdited, setSlugEdited] = useState(false);
 
   useEffect(() => {
     async function fetchPost() {
@@ -35,7 +36,10 @@ export default function EditPostPage() {
   }, [slugParam]);
 
   useEffect(() => {
-    setSlug(slugify(title, { lower: true, strict: true }));
+    if (!slugEdited) {
+      setSlug(slugify(title, { lower: true, strict: true }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
 
   if (status === 'loading') return <p className="p-4">Checking auth...</p>;
@@ -53,7 +57,7 @@ export default function EditPostPage() {
     const res = await fetch(`/api/posts/${slugParam}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content, slug }),
     });
     if (res.ok) {
       router.push('/admin');
@@ -81,8 +85,11 @@ export default function EditPostPage() {
           <input
             type="text"
             value={slug}
-            readOnly
-            className="w-full p-2 border rounded bg-gray-100"
+            onChange={(e) => {
+              setSlug(e.target.value);
+              setSlugEdited(true);
+            }}
+            className="w-full p-2 border rounded"
           />
         </div>
         <div>

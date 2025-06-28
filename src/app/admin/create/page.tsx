@@ -16,9 +16,13 @@ export default function CreatePostPage() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
+  const [slugEdited, setSlugEdited] = useState(false);
 
   useEffect(() => {
-    setSlug(slugify(title, { lower: true, strict: true }));
+    if (!slugEdited) {
+      setSlug(slugify(title, { lower: true, strict: true }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
 
   if (status === 'loading') return <p className="p-4">Checking auth...</p>;
@@ -62,8 +66,11 @@ export default function CreatePostPage() {
           <input
             type="text"
             value={slug}
-            readOnly
-            className="w-full p-2 border rounded bg-gray-100"
+            onChange={(e) => {
+              setSlug(e.target.value);
+              setSlugEdited(true);
+            }}
+            className="w-full p-2 border rounded"
           />
         </div>
         <div>
