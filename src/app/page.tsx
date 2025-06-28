@@ -11,23 +11,24 @@ async function getPosts() {
 }
 
 function getPreview(html: string) {
-  // Remove tags
-  let text = html
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // Decode HTML entities
   if (typeof window === 'undefined') {
-    // SSR: fallback, just replace common entities
-    text = text.replace(/&[a-z]+;/gi, ' ');
+    // SSR: remove tags and decode common entities
+    return html
+      .replace(/<[^>]+>/g, '') // remove tags
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
   } else {
-    // Client: use DOM to decode entities
+    // Client: use DOM to decode entities and strip tags
     const div = document.createElement('div');
-    div.innerHTML = text;
-    text = div.textContent || div.innerText || '';
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
   }
-  return text;
 }
 
 export default async function HomePage() {
