@@ -10,9 +10,8 @@ async function getPosts() {
   return posts;
 }
 
-function getPreview(html: string) {
+function getPreview(html: string, title: string) {
   if (typeof window === 'undefined') {
-    // SSR
     const decoded = html
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -21,15 +20,42 @@ function getPreview(html: string) {
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
 
-    return decoded
-      .replace(/<[^>]+>/g, '') // strip any real tags
-      .replace(/\s+/g, ' ') // collapse whitespace
+    let text = decoded
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
       .trim();
+
+    const t = title.trim();
+    if (t && text.toLowerCase().startsWith(t.toLowerCase())) {
+      text = text.slice(t.length).trim();
+    }
+
+    // Truncate to ~160 characters without cutting mid-word
+    const limit = 160;
+    if (text.length > limit) {
+      let truncated = text.slice(0, limit);
+      const lastSpace = truncated.lastIndexOf(' ');
+      if (lastSpace > 50) truncated = truncated.slice(0, lastSpace);
+      text = truncated.trimEnd() + '...';
+    }
+    return text;
   } else {
-    // Client
     const div = document.createElement('div');
     div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    let text = div.textContent || div.innerText || '';
+    const t = title.trim();
+    if (t && text.toLowerCase().startsWith(t.toLowerCase())) {
+      text = text.slice(t.length).trim();
+    }
+
+    const limit = 160;
+    if (text.length > limit) {
+      let truncated = text.slice(0, limit);
+      const lastSpace = truncated.lastIndexOf(' ');
+      if (lastSpace > 50) truncated = truncated.slice(0, lastSpace);
+      text = truncated.trimEnd() + '...';
+    }
+    return text;
   }
 }
 
@@ -62,7 +88,7 @@ export default async function HomePage() {
               Published on {new Date(post.createdAt).toLocaleDateString()}
             </p>
             <p className="text-gray-500 line-clamp-3">
-              {getPreview(post.content)}
+              {getPreview(post.content, post.title)}
             </p>
             <Link
               href={`/${post.slug}`}
