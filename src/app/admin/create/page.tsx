@@ -17,6 +17,7 @@ export default function CreatePostPage() {
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
   const [slugEdited, setSlugEdited] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!slugEdited) {
@@ -35,6 +36,8 @@ export default function CreatePostPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,6 +48,7 @@ export default function CreatePostPage() {
     } else {
       alert('Error creating post');
     }
+    setSubmitting(false);
   }
 
   return (
@@ -79,9 +83,10 @@ export default function CreatePostPage() {
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded"
+          className={`px-4 py-2 rounded text-white ${submitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600'}`}
+          disabled={submitting}
         >
-          Create Post
+          {submitting ? 'Creating...' : 'Create Post'}
         </button>
       </form>
     </div>

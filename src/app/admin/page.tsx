@@ -17,13 +17,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status !== 'authenticated') return;
+    setLoading(true);
     fetch('/api/posts')
       .then((res) => res.json())
       .then((data) => {
         setPosts(data.data || []);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [status]);
 
   async function handleDelete(slug: string) {
     if (!confirm('Delete this post?')) return;

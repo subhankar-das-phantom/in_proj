@@ -19,6 +19,7 @@ export default function EditPostPage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [slugEdited, setSlugEdited] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchPost() {
@@ -54,6 +55,8 @@ export default function EditPostPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const res = await fetch(`/api/posts/${slugParam}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -64,6 +67,7 @@ export default function EditPostPage() {
     } else {
       alert('Error updating post');
     }
+    setSubmitting(false);
   }
 
   return (
@@ -96,8 +100,12 @@ export default function EditPostPage() {
           <label className="block mb-1 font-medium">Content</label>
           <ReactQuill value={content} onChange={setContent} theme="snow" />
         </div>
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-          Update Post
+        <button
+          type="submit"
+          className={`px-4 py-2 rounded text-white ${submitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600'}`}
+          disabled={submitting}
+        >
+          {submitting ? 'Updating...' : 'Update Post'}
         </button>
       </form>
     </div>
