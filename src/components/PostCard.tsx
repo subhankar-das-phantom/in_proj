@@ -5,9 +5,9 @@ export default function PostCard({ post }: { post: Post }) {
   return (
     <article className="group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100">
       <Link href={`/${post.slug}`} className="block">
-        <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-purple-100 to-blue-50">
+        <div className="relative aspect-[16/9] bg-gradient-to-br from-purple-100 to-blue-50">
           {/* Placeholder for future featured image */}
-          <div className="flex items-center justify-center text-4xl text-gray-300">
+          <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300">
             📝
           </div>
         </div>
