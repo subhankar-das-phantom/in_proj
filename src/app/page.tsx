@@ -11,11 +11,23 @@ async function getPosts() {
 }
 
 function getPreview(html: string) {
-  return html
-    .replace(/<[^>]+>/g, ' ') // remove tags
-    .replace(/&nbsp;/g, ' ')   // decode nbsp
-    .replace(/\s+/g, ' ')     // collapse whitespace
+  // Remove tags
+  let text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
+
+  // Decode HTML entities
+  if (typeof window === 'undefined') {
+    // SSR: fallback, just replace common entities
+    text = text.replace(/&[a-z]+;/gi, ' ');
+  } else {
+    // Client: use DOM to decode entities
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    text = div.textContent || div.innerText || '';
+  }
+  return text;
 }
 
 export default async function HomePage() {
