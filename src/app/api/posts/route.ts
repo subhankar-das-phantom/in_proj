@@ -6,14 +6,20 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { sanitize } from '@/lib/sanitize';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await connectToDatabase();
     const posts = await Post.find().sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, data: posts }, { status: 200 });
+    
+    return NextResponse.json({ 
+      success: true, 
+      data: posts 
+    });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || 'Something went wrong' },
+      { success: false, message: error.message || 'Failed to fetch posts' },
       { status: 500 }
     );
   }

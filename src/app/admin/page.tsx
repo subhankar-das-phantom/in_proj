@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { connectToDatabase } from '@/lib/mongodb';
-import { Post } from '@/models/Post';
 import { useEffect, useState } from 'react';
-
-export const dynamic = 'force-dynamic';
 
 interface PostDocument {
   _id: string;
@@ -24,10 +20,17 @@ export default function AdminPage() {
   
   useEffect(() => {
     async function fetchPosts() {
-      await connectToDatabase();
-      const fetchedPosts = await Post.find().sort({ createdAt: -1 });
-      setPosts(fetchedPosts);
-      setLoading(false);
+      try {
+        const res = await fetch('/api/posts');
+        const data = await res.json();
+        if (data.success) {
+          setPosts(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     
     if (session) {
@@ -36,12 +39,38 @@ export default function AdminPage() {
   }, [session]);
 
   if (status === "loading" || loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Loading...</h2>
+          <p className="text-gray-600 mt-2">Please wait while we fetch your data.</p>
+        </div>
+      </div>
+    );
   }
 
   if (!session) {
     redirect('/admin/login');
+    return null;
   }
+
+  const handleDelete = async (slug: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    
+    try {
+      const res = await fetch(`/api/posts/${slug}`, { method: 'DELETE' });
+      if (res.ok) {
+        // Refresh posts instead of reloading the page
+        const updatedPosts = posts.filter(post => post.slug !== slug);
+        setPosts(updatedPosts);
+      } else {
+        alert('Error deleting post');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Error deleting post');
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -66,10 +95,10 @@ export default function AdminPage() {
           <h3 className="text-lg font-medium text-gray-600 mb-4">Published This Month</h3>
           <p className="text-4xl font-bold text-gray-900">
             {posts.filter(post => {
-              const postDate = new Date(post.createdAt)
-              const now = new Date()
+              const postDate = new Date(post.createdAt);
+              const now = new Date();
               return postDate.getMonth() === now.getMonth() && 
-                     postDate.getFullYear() === now.getFullYear()
+                     postDate.getFullYear() === now.getFullYear();
             }).length}
           </p>
         </div>
@@ -121,23 +150,12 @@ export default function AdminPage() {
                       >
                         Edit
                       </Link>
-                      <form action={`/api/posts/${post.slug}`} method="DELETE" onSubmit={async (e) => {
-                        e.preventDefault();
-                        if (!confirm('Are you sure you want to delete this post?')) return;
-                        const res = await fetch(`/api/posts/${post.slug}`, { method: 'DELETE' });
-                        if (res.ok) {
-                          window.location.reload();
-                        } else {
-                          alert('Error deleting post');
-                        }
-                      }}>
-                        <button
-                          type="submit"
-                          className="text-red-600 hover:text-red-800 font-medium transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </form>
+                      <button
+                        onClick={() => handleDelete(post.slug)}
+                        className="text-red-600 hover:text-red-800 font-medium transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
