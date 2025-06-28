@@ -79,7 +79,7 @@ export default async function HomePage() {
             <h2 className="text-3xl font-bold mb-2">
               <Link
                 href={`/${post.slug}`}
-                className="text-gray-900 hover:text-blue-600 transition-colors"
+                className="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 {post.title}
               </Link>
