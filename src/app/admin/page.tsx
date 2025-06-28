@@ -1,30 +1,28 @@
-"use client";
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { connectToDatabase } from "@/lib/mongodb"
-import { Post } from "@/models/Post"
-import { getServerSession } from "next-auth"
-import { redirect } from "next/navigation"
-import { authOptions } from "@/lib/auth"
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { connectToDatabase } from '@/lib/mongodb';
+import { Post } from '@/models/Post';
 
-interface Post {
+export const dynamic = 'force-dynamic';
+
+interface PostDocument {
   _id: string;
   title: string;
   slug: string;
   createdAt: string;
+  updatedAt: string;
 }
 
-export const dynamic = 'force-dynamic'
-
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
   if (!session) {
-    redirect('/admin/login')
+    redirect('/admin/login');
   }
 
-  await connectToDatabase()
-  const posts = await Post.find().sort({ createdAt: -1 })
+  await connectToDatabase();
+  const posts: PostDocument[] = await Post.find().sort({ createdAt: -1 });
 
   return (
     <div className="space-y-8">

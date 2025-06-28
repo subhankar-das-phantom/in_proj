@@ -1,4 +1,6 @@
-@reference "../styles/tailwind.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --color-brand-primary: 99 102 241; /* indigo-500 */

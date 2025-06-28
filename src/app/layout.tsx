@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "../styles/tailwind.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import Container from "@/components/Container";
