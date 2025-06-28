@@ -12,19 +12,21 @@ async function getPosts() {
 
 function getPreview(html: string) {
   if (typeof window === 'undefined') {
-    // SSR: remove tags and decode common entities
-    return html
-      .replace(/<[^>]+>/g, '') // remove tags
+    // SSR
+    const decoded = html
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/\s+/g, ' ')
+      .replace(/&#39;/g, "'");
+
+    return decoded
+      .replace(/<[^>]+>/g, '') // strip any real tags
+      .replace(/\s+/g, ' ') // collapse whitespace
       .trim();
   } else {
-    // Client: use DOM to decode entities and strip tags
+    // Client
     const div = document.createElement('div');
     div.innerHTML = html;
     return div.textContent || div.innerText || '';
