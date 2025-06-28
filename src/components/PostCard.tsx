@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { Post } from '@/models/Post'
+import type { IPost } from '@/models/Post'
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({ post }: { post: IPost }) {
   return (
     <article className="group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100">
       <Link href={`/${post.slug}`} className="block">
