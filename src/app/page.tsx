@@ -1,111 +1,41 @@
-import Link from 'next/link';
-import { connectToDatabase } from '@/lib/mongodb';
-import { Post, IPost } from '@/models/Post';
+import { connectToDatabase } from "@/lib/mongodb"
+import { Post } from "@/models/Post"
+import PostCard from "@/components/PostCard"
 
-async function getPosts() {
-  await connectToDatabase();
-  const posts = (await Post.find()
-    .sort({ createdAt: -1 })
-    .lean()) as unknown as IPost[];
-  return posts;
-}
+export const dynamic = 'force-dynamic'
 
-function getPreview(html: string, title: string) {
-  if (typeof window === 'undefined') {
-    const decoded = html
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
-
-    let text = decoded
-      .replace(/<[^>]+>/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const t = title.trim();
-    if (t && text.toLowerCase().startsWith(t.toLowerCase())) {
-      text = text.slice(t.length).trim();
-    }
-
-    // Truncate to ~160 characters without cutting mid-word
-    const limit = 160;
-    if (text.length > limit) {
-      let truncated = text.slice(0, limit);
-      const lastSpace = truncated.lastIndexOf(' ');
-      if (lastSpace > 50) truncated = truncated.slice(0, lastSpace);
-      text = truncated.trimEnd() + '...';
-    }
-    return text;
-  } else {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    let text = div.textContent || div.innerText || '';
-    const t = title.trim();
-    if (t && text.toLowerCase().startsWith(t.toLowerCase())) {
-      text = text.slice(t.length).trim();
-    }
-
-    const limit = 160;
-    if (text.length > limit) {
-      let truncated = text.slice(0, limit);
-      const lastSpace = truncated.lastIndexOf(' ');
-      if (lastSpace > 50) truncated = truncated.slice(0, lastSpace);
-      text = truncated.trimEnd() + '...';
-    }
-    return text;
-  }
-}
-
-export default async function HomePage() {
-  const posts = await getPosts();
+export default async function Home() {
+  await connectToDatabase()
+  const posts = await Post.find().sort({ createdAt: -1 })
 
   return (
-    <main className="max-w-4xl mx-auto p-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-          The Blog
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <section className="text-center space-y-4">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+          Welcome to Modern Blog
         </h1>
-        <p className="mt-4 text-lg text-gray-500">
-          Welcome to our collection of thoughts and stories.
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Discover insightful articles about technology, development, and innovation. 
+          Join us on a journey of continuous learning and exploration.
         </p>
-      </div>
+      </section>
 
-      <div className="space-y-8">
-        {posts.map((post) => (
-          <article key={post.slug} className="border-b pb-8">
-            <h2 className="text-3xl font-bold mb-2">
-              <Link
-                href={`/${post.slug}`}
-                className="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                {post.title}
-              </Link>
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Published on {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-            <p className="text-gray-500 line-clamp-3">
-              {getPreview(post.content, post.title)}
-            </p>
-            <Link
-              href={`/${post.slug}`}
-              className="text-blue-600 hover:underline mt-4 inline-block"
-            >
-              Read more →
-            </Link>
-          </article>
-        ))}
+      {/* Posts Grid */}
+      <section>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.map((post) => (
+            <PostCard key={post._id.toString()} post={post} />
+          ))}
+        </div>
+
         {posts.length === 0 && (
-          <p className="text-center text-gray-500">
-            No posts yet. Check back soon!
-          </p>
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold text-gray-900">No posts yet</h2>
+            <p className="text-gray-600 mt-2">Check back soon for new content!</p>
+          </div>
         )}
-      </div>
-    </main>
-  );
+      </section>
+    </div>
+  )
 }
-
-export const dynamic = 'force-dynamic';
