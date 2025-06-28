@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blog CMS with Next.js 14, MongoDB & Next-Auth
 
-## Getting Started
+## Features
+* Admin CRUD with React-Quill rich-text editor
+* SEO-friendly slugs & dynamic meta tags
+* Secure credentials-based admin auth (Next-Auth)
+* MongoDB Atlas via Mongoose
+* Server-side HTML sanitisation
+* TailwindCSS + Typography plugin
 
-First, run the development server:
-
+## Getting started
 ```bash
+# 1. clone & install
+git clone <repo-url>
+cd in_proj
+npm install
+
+# 2. env vars
+cp .env.local.example .env.local
+# fill values: Mongo URI, admin creds, NEXTAUTH_SECRET
+
+# 3. dev
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
+* `npm run dev` – turbo / hot-reload dev server on http://localhost:3000
+* `npm run build` – production build
+* `npm run start` – start prod server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment (Vercel)
+1. Push repository to GitHub.
+2. In Vercel Dashboard → **New Project** → import repo.
+3. Add the following Environment Variables in **Production & Preview**:
+   * `MONGODB_URI`
+   * `MONGODB_DB_NAME`
+   * `ADMIN_USERNAME`
+   * `ADMIN_PASSWORD`
+   * `NEXTAUTH_SECRET` – can be generated: `openssl rand -base64 32`
+4. Click **Deploy** – Vercel detects Next.js automatically.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API
+| method | endpoint | description |
+| ------ | -------- | ----------- |
+| GET | `/api/posts` | list all posts |
+| POST | `/api/posts` | create post *(auth)* |
+| GET | `/api/posts/[slug]` | get single post |
+| PUT | `/api/posts/[slug]` | update post *(auth)* |
+| DELETE | `/api/posts/[slug]` | delete post *(auth)* |
 
-## Learn More
+Payload for create / update:
+```json
+{
+  "title": "My first post",
+  "content": "<p>Hello world</p>"
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Made with ❤️ and ☕
