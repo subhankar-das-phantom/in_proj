@@ -11,8 +11,8 @@ export default async function Home() {
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="text-center space-y-4">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+      <section className="text-center space-y-4 py-8">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent leading-tight py-2">
           Welcome to Modern Blog
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">

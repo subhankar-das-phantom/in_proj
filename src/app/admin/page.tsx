@@ -1,9 +1,11 @@
+"use client";
+
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { useSession } from 'next-auth/react';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Post } from '@/models/Post';
+import { useEffect, useState } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,14 +17,31 @@ interface PostDocument {
   updatedAt: string;
 }
 
-export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+export default function AdminPage() {
+  const { data: session, status } = useSession();
+  const [posts, setPosts] = useState<PostDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchPosts() {
+      await connectToDatabase();
+      const fetchedPosts = await Post.find().sort({ createdAt: -1 });
+      setPosts(fetchedPosts);
+      setLoading(false);
+    }
+    
+    if (session) {
+      fetchPosts();
+    }
+  }, [session]);
+
+  if (status === "loading" || loading) {
+    return <div>Loading...</div>;
+  }
+
   if (!session) {
     redirect('/admin/login');
   }
-
-  await connectToDatabase();
-  const posts: PostDocument[] = await Post.find().sort({ createdAt: -1 });
 
   return (
     <div className="space-y-8">
@@ -47,7 +66,7 @@ export default async function AdminPage() {
           <h3 className="text-lg font-medium text-gray-600 mb-4">Published This Month</h3>
           <p className="text-4xl font-bold text-gray-900">
             {posts.filter(post => {
-              const postDate = new Date(post.createdAt!)
+              const postDate = new Date(post.createdAt)
               const now = new Date()
               return postDate.getMonth() === now.getMonth() && 
                      postDate.getFullYear() === now.getFullYear()
@@ -77,7 +96,7 @@ export default async function AdminPage() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {posts.map((post) => (
                 <tr key={post._id.toString()} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -89,18 +108,37 @@ export default async function AdminPage() {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {new Date(post.createdAt!).toLocaleDateString()}
+                    {new Date(post.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {new Date(post.updatedAt!).toLocaleDateString()}
+                    {new Date(post.updatedAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <Link
-                      href={`/admin/${post.slug}`}
-                      className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex items-center justify-end gap-4">
+                      <Link
+                        href={`/admin/${post.slug}`}
+                        className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                      >
+                        Edit
+                      </Link>
+                      <form action={`/api/posts/${post.slug}`} method="DELETE" onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!confirm('Are you sure you want to delete this post?')) return;
+                        const res = await fetch(`/api/posts/${post.slug}`, { method: 'DELETE' });
+                        if (res.ok) {
+                          window.location.reload();
+                        } else {
+                          alert('Error deleting post');
+                        }
+                      }}>
+                        <button
+                          type="submit"
+                          className="text-red-600 hover:text-red-800 font-medium transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -116,5 +154,5 @@ export default async function AdminPage() {
         </div>
       </div>
     </div>
-  )
+  );
 } 
